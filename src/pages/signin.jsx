@@ -46,7 +46,7 @@ export default function SignIn() {
         </p>
 
         <button onClick={handleAuthorize}
-          className="flex items-center justify-center gap-4 px-8 py-3 bg-white text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-100 transition duration-300">
+          className="hover:cursor-pointer flex items-center justify-center gap-4 px-8 py-3 bg-white text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-100 transition duration-300">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" className="w-5 h-5" />
           Continue with Google
         </button>
