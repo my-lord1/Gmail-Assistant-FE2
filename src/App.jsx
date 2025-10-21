@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
 import SignIn from './pages/signin'
+import DashBoard from './pages/dashboard'
 
 function App() {
 
@@ -9,6 +10,7 @@ function App() {
   <BrowserRouter>
       <Routes>
         <Route path="/" element = {<SignIn />} />
+        <Route path="/dashboard/:user_id/:user_email" element = {<DashBoard />} />
       </Routes>
     </BrowserRouter>
   )
