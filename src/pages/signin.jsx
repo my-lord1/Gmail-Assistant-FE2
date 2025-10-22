@@ -14,7 +14,6 @@ export default function SignIn() {
 
   return (
     <div className="fixed top-0 left-0 w-screen h-screen flex flex-col items-center justify-center overflow-hidden text-center">
-      {/* 🔹 Background */}
       <div className="absolute inset-0 bg-black -z-10">
         <Aurora
           colorStops={["#7cff67", "#b19eef", "#5227ff"]}
@@ -24,7 +23,6 @@ export default function SignIn() {
         />
       </div>
 
-      {/* 🔹 Navbar */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-[90%] max-w-4xl px-6 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl">✉️</span>
@@ -36,7 +34,6 @@ export default function SignIn() {
         </div>
       </div>
 
-      {/* 🔹 Foreground Content */}
       <div className="flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
           Get started with your AI-powered inbox
@@ -51,13 +48,11 @@ export default function SignIn() {
           Continue with Google
         </button>
 
-
         <p className="text-gray-400 text-sm mt-6">
           Powered by Gemini:Flash-2.0 & Gmail API
         </p>
       </div>
 
-      {/* 🔹 Glow Behind Button */}
       <div className="absolute bottom-[45%] left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-3xl -z-10"></div>
     </div>
   );
