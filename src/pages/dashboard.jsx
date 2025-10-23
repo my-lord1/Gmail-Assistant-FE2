@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import bgImage from "../assets/brave5.avif";
+import GmailCompose from "../components/MailComposer";
 
 export default function DashBoard() {
   const { user_id } = useParams();
@@ -9,6 +10,7 @@ export default function DashBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+  const [showComposer, setShowComposer] = useState(false);
 
   const getDisplayName = (from) => {
     if (!from) return "Unknown";
@@ -51,14 +53,24 @@ export default function DashBoard() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div
-      className="fixed top-0 left-0 w-screen h-screen bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}>
+    <div className="fixed top-0 left-0 w-screen h-screen bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}>
       {/* Centered scrollable box */}
       <div className="max-w-7xl mx-auto mt-5 p-3">
-      <div className="flex justify-between mb-3">
-          <div className="bg-white/80 rounded-xl p-2 flex items"> 
-            <span className="text-2xl font-bold"> Inbox </span>
-          </div>
+        <div className="flex justify-between mb-3">
+          {/* Compose Button */}
+          <button onClick={() => setShowComposer(true)} className="cursor-pointer bg-white/80 hover:bg-blue-700 text-black text-2xl font-bold px-6 py-2 rounded-xl shadow-md transition">
+              Compose
+          </button>
+
+          {/* gmail composer*/}
+          {showComposer && (
+            <div className="fixed bottom-6 right-6 z-50">
+              <GmailCompose userId={user_id} onClose={() => setShowComposer(false)}/>  
+            </div>
+          )}
+
+          <div className="bg-white/80 rounded-xl p-6 text-2xl font-bold flex items-center "> Inbox </div>
+          
           <div className="bg-white/80 rounded-xl p-4 flex items-center gap-2">
             {userInfo?.profile_photo && (
               <img src={userInfo.profile_photo} alt="Profile" className="w-12 h-12 rounded-full border border-gray-300 shadow-sm"/>)}
