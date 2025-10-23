@@ -91,7 +91,7 @@ export default function DashBoard() {
                 const isUnread = latestMsg.is_unread;
 
                 return (
-                  <div key={thread.threadId} className={`border border-gray-200 p-4 cursor-pointer rounded-xl transition-colors ${ isUnread ? "bg-gray-50" : "bg-white/50"}`}>
+                  <div key={thread.threadId} onClick={() => navigate(`/thread/${user_id}/${thread.threadId}`)} className={`border border-gray-200 p-4 cursor-pointer rounded-xl transition-colors ${ isUnread ? "bg-gray-50" : "bg-white/50"}`}>
                     <div className="flex flex-row justify-between items-center">
                       <span className={`w-1/3 text-left ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
                         {from}
@@ -99,7 +99,7 @@ export default function DashBoard() {
                       <span className={`w-1/2 text-left ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
                         {subject}
                       </span>
-                      
+                    
                      
                         <span className={`w-1/2 flex items-center justify-end w-1/6 space-x-2 text-xs font-semibold ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
                           {sentTime}
