@@ -55,7 +55,7 @@ export default function DashBoard() {
   return (
     <div className="fixed top-0 left-0 w-screen h-screen bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}>
       {/* Centered scrollable box */}
-      <div className="max-w-7xl mx-auto mt-5 p-3">
+      <div className="max-w-7xl mx-auto mt-5 border p-3">
         <div className="flex justify-between mb-3">
           {/* Compose Button */}
           <button onClick={() => setShowComposer(true)} className="cursor-pointer bg-white/80 hover:bg-blue-700 text-black text-2xl font-bold px-6 py-2 rounded-xl shadow-md transition">

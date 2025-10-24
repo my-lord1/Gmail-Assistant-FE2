@@ -8,6 +8,7 @@ export default function GmailCompose({
     initialSubject = '',
     onClose 
 }) {
+
   const [to, setTo] = useState(initialTo);
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState('');
@@ -31,10 +32,9 @@ export default function GmailCompose({
 
     setLoading(true);
     setMessage({ type: '', text: '' });
-
     try {
       const payload = { user_id: userId, body_text: body };
-
+      
       if (threadId && replyToMessageId) {
         payload.thread_id = threadId;
         payload.reply_to_message_id = replyToMessageId;
@@ -149,7 +149,7 @@ export default function GmailCompose({
           disabled={loading}
           className="w-full cursor-pointer bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {loading ? 'Sending...' : 'Send Email'}
+          {loading ? 'Sending...' : 'Send Gmail'}
         </button>
       </form>
     </div>
