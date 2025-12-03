@@ -1,7 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import bgImage from "../assets/brave5.avif";
+import { LogOut } from "lucide-react"; 
+import Aurora from "../components/Aurora";
 import GmailCompose from "../components/MailComposer";
+import GmailAgent from "./modal_dialog";
 
 export default function DashBoard() {
   const { user_id } = useParams();
@@ -11,14 +13,24 @@ export default function DashBoard() {
   const [error, setError] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
+  const [showAgent, setShowAgent] = useState(false);
+
+  const [locallyRead, setLocallyRead] = useState(() => {
+    const saved = sessionStorage.getItem(`readThreads_${user_id}`);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  const GlassLayer = ({ className = "", rounded = "rounded-3xl", opacity = "bg-white/10" }) => (
+    <div className={`absolute inset-0 -z-10 border border-white/20 ${opacity} backdrop-blur-[40px] backdrop-saturate-150 shadow-lg ${rounded} ${className}`}>
+      <div className={`absolute inset-0 border border-white/10 ${rounded}`} style={{ clipPath: 'inset(1px)' }}></div>
+    </div>
+  );
 
   const getDisplayName = (from) => {
     if (!from) return "Unknown";
     from = from.trim();
-
     const quoteMatch = from.match(/^"(.*)"\s*<.*>$/);
     if (quoteMatch) return quoteMatch[1];
-
     const angleMatch = from.match(/^(.*)<(.*)>$/);
     if (angleMatch) {
       const name = angleMatch[1].trim();
@@ -39,92 +51,164 @@ export default function DashBoard() {
         if (!response.ok) throw new Error("Failed to fetch emails");
         const data = await response.json();
         setThreads(data.threads || []);
-        setUserInfo(data.user_info || null); 
+        setUserInfo(data.user_info || null);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchEmails();
   }, [user_id]);
 
-  if (error) return <div>Error: {error}</div>;
+  const handleThreadClick = async (threadId) => {
+    setLocallyRead((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(threadId);
+      sessionStorage.setItem(`readThreads_${user_id}`, JSON.stringify([...newSet]));
+      return newSet;
+    });
+
+    fetch(`http://localhost:8000/api/agent/mark-read/${user_id}/${threadId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }).catch((err) => console.error("Failed to mark read on server:", err));
+
+    navigate(`/thread/${user_id}/${threadId}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:8000/auth/google/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id }),
+      });
+    } catch (err) {
+      console.error("Logout API call failed", err);
+    }
+    sessionStorage.clear();
+    localStorage.removeItem('user_id'); 
+    navigate('/'); 
+  };
+
+  if (error) return <div className="text-white p-10 font-sans">Error: {error}</div>;
 
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}>
-      {/* Centered scrollable box */}
-      <div className="max-w-7xl mx-auto mt-5 border p-3">
-        <div className="flex justify-between mb-3">
-          {/* Compose Button */}
-          <button onClick={() => setShowComposer(true)} className="cursor-pointer bg-white/80 hover:bg-blue-700 text-black text-2xl font-bold px-6 py-2 rounded-xl shadow-md transition">
-              Compose
-          </button>
+    <div className="fixed inset-0 w-full h-full overflow-hidden text-white font-sans bg-black">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <Aurora
+          colorStops={["#7cff67", "#b19eef", "#5227ff"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={0.75}
+        />
+      </div>
+      <div className="relative z-10 w-full h-full flex flex-col p-6 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6 shrink-0">
+          <div className="flex gap-4">
+            <button onClick={() => setShowComposer(true)} className="relative group px-8 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95">
+              <GlassLayer rounded="rounded-full" className="group-hover:bg-white/20 transition-colors" />
+              <span className="relative z-20">Compose</span>
+            </button>
 
-          {/* gmail composer*/}
-          {showComposer && (
-            <div className="fixed bottom-6 right-6 z-50">
-              <GmailCompose userId={user_id} onClose={() => setShowComposer(false)}/>  
+            <button onClick={() => setShowAgent(true)} className="relative group px-8 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95">
+              <GlassLayer rounded="rounded-full" className="group-hover:bg-white/20 transition-colors" />
+              <span className="relative z-20">Agent</span>
+            </button>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="relative px-8 py-3 flex items-center justify-center">
+              <GlassLayer rounded="rounded-full" />
+              <span className="relative z-20 text-xl font-bold tracking-wide text-white/90">Inbox</span>
             </div>
-          )}
 
-          <div className="bg-white/80 rounded-xl p-6 text-2xl font-bold flex items-center "> Inbox </div>
-          
-          <div className="bg-white/80 rounded-xl p-4 flex items-center gap-2">
-            {userInfo?.profile_photo && (
-              <img src={userInfo.profile_photo} alt="Profile" className="w-12 h-12 rounded-full border border-gray-300 shadow-sm"/>)}
-            <div>
-              <div className="font-bold text-xl text-left ">
-                Hi, {userInfo?.user_name || "User"}
+            <div className="relative group z-50"> 
+              <div className="relative z-20 pl-2 pr-6 py-2 flex items-center gap-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 transition-all duration-300 group-hover:bg-black/40 group-hover:border-white/30 cursor-default">
+                {userInfo?.profile_photo ? (
+                  <img src={userInfo.profile_photo} alt="Profile" className="w-10 h-10 rounded-full border-2 border-white/30 shadow-sm object-cover"/>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-white/20 border-2 border-white/30" />
+                )}
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-white leading-tight">
+                    {userInfo?.user_name || "User"}
+                  </span>
+                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-wider">
+                    {userInfo?.gmail_id ? "Connected" : `ID: ${user_id}`}
+                  </span>
+                </div>
               </div>
-              <div className="text-xs text-left">
-                {userInfo?.gmail_id || `User ID: ${user_id}`}
-              </div>
+
+              <button
+                onClick={handleLogout}
+                className="absolute inset-0 -z-10 flex items-center justify-center gap-2 rounded-full 
+                           bg-red-600/20 border border-red-500/30 text-red-200 font-bold tracking-wide
+                           opacity-0 group-hover:opacity-100
+                           translate-y-0 group-hover:translate-y-[115%] 
+                           transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-xl backdrop-blur-md">
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+              <div className="absolute inset-0 -z-20 rounded-full bg-red-500 blur-xl opacity-20 group-hover:opacity-0 transition-opacity duration-300"></div>
             </div>
           </div>
         </div>
 
-        {loading ? (
-          <div>Loading emails...</div>
-        ) : (
-          <>
-            {threads.length === 0 && (
-              <p className="text-gray-500">No emails found</p>
-            )}
+        <div className="relative flex-1 overflow-hidden">
+          <div className="relative z-20 h-full p-5 border border-white/20 rounded-3xl overflow-y-auto custom-scrollbar">
+            {loading ? (
+              <div className="flex h-full items-center justify-center text-white/50 animate-pulse">
+                Loading your inbox...
+              </div>
+            ) : (
+              <div className="space-y-3 pb-20">
+                {threads.length === 0 && (
+                  <p className="text-white/50 text-center mt-10">No emails found</p>
+                )}
+                
+                {threads.map((thread) => {
+                  const latestMsg = thread.messages?.[thread.messages.length - 1] || {};
+                  const from = getDisplayName(latestMsg.from);
+                  const subject = latestMsg.subject || "(No Subject)";
+                  const sentTime = latestMsg.sent_time || "";
+                  const isActuallyUnread = latestMsg.is_unread && !locallyRead.has(thread.threadId);
 
-            <div className="h-[600px] overflow-y-auto space-y-2">
-              {threads.map((thread) => {
-                const latestMsg =
-                  thread.messages?.[thread.messages.length - 1] || {};
-                const from = getDisplayName(latestMsg.from);
-                const subject = latestMsg.subject || "(No Subject)";
-                const sentTime = latestMsg.sent_time || "";
-                const isUnread = latestMsg.is_unread;
-
-                return (
-                  <div key={thread.threadId} onClick={() => navigate(`/thread/${user_id}/${thread.threadId}`)} className={`border border-gray-200 p-4 cursor-pointer rounded-xl transition-colors ${ isUnread ? "bg-gray-50" : "bg-white/50"}`}>
-                    <div className="flex flex-row justify-between items-center">
-                      <span className={`w-1/3 text-left ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
-                        {from}
-                      </span>
-                      <span className={`w-1/2 text-left ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
-                        {subject}
-                      </span>
-                    
-                     
-                        <span className={`w-1/2 flex items-center justify-end w-1/6 space-x-2 text-xs font-semibold ${ isUnread ? "font-semibold text-gray-2000": "text-gray-800"}`}>
+                  return (
+                    <div key={thread.threadId} onClick={() => handleThreadClick(thread.threadId)} className="relative group p-5 cursor-pointer transition-all duration-300 hover:scale-[1.01]">
+                      <GlassLayer rounded="rounded-2xl" opacity={isActuallyUnread ? "bg-white/20" : "bg-white/5"} className="group-hover:bg-white/20 transition-colors duration-300"/>
+                      <div className="relative z-10 flex flex-row justify-between items-center">
+                        <span className={`w-1/3 text-left truncate pr-4 ${isActuallyUnread ? "font-bold text-white/95" : "font-medium text-white/70"}`}>
+                          {from}
+                        </span>
+                        <span className={`w-1/2 text-left truncate ${isActuallyUnread ? "font-bold text-white/95" : "text-white/60"}`}>
+                          {subject}
+                        </span>
+                        <span className={`w-1/6 text-right text-xs ${isActuallyUnread ? "font-bold text-white/95" : "text-white/40"}`}>
                           {sentTime}
                         </span>
-                      
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {showAgent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <GmailAgent userId={user_id} onClose={() => setShowAgent(false)} onLogout={handleLogout} />
+        </div>
+      )}
+
+      {showComposer && (
+        <div className="fixed bottom-10 right-10 z-50 drop-shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
+          <GmailCompose userId={user_id} onClose={() => setShowComposer(false)} />
+        </div>
+      )}
     </div>
   );
 }

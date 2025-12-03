@@ -12,9 +12,15 @@ export default function SignIn() {
     }
   };
 
+  const GlassLayer = ({ className = "", rounded = "rounded-3xl", opacity = "bg-white/10" }) => (
+    <div className={`absolute inset-0 -z-10 border border-white/20 ${opacity} backdrop-blur-[40px] backdrop-saturate-150 shadow-2xl ${rounded} ${className}`}>
+      <div className={`absolute inset-0 border border-white/10 ${rounded}`} style={{ clipPath: 'inset(1px)' }}></div>
+    </div>
+  );
+
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen flex flex-col items-center justify-center overflow-hidden text-center">
-      <div className="absolute inset-0 bg-black -z-10">
+    <div className="fixed inset-0 w-full h-full overflow-hidden text-white font-sans bg-black selection:bg-blue-500/30">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <Aurora
           colorStops={["#7cff67", "#b19eef", "#5227ff"]}
           blend={0.5}
@@ -22,38 +28,51 @@ export default function SignIn() {
           speed={0.75}
         />
       </div>
-
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-[90%] max-w-4xl px-6 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">✉️</span>
-          <span className="text-white font-semibold text-lg">Gmail Assistant</span>
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-6">
+        <div className="absolute top-8 w-full max-w-2xl px-2">
+            <div className="relative px-6 py-4 flex items-center justify-between group">
+                <GlassLayer rounded="rounded-full" className="group-hover:bg-white/15 transition-colors duration-500" />
+                <div className="relative z-20 flex items-center gap-3">
+                    <span className="text-2xl drop-shadow-md">✉️</span>
+                    <span className="text-white font-bold text-lg tracking-wide">Gmail Assistant</span>
+                </div>
+                <div className="relative z-20 flex items-center gap-6">
+                    <a href="https://github.com/my-lord1" className="text-sm font-semibold text-white/70 hover:text-white transition-colors duration-300">
+                        Github Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in duration-700">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-sm leading-[1.1]">
+                Your Inbox, <br />
+                <span className="bg-gradient-to-r from-blue-200 to-indigo-200 bg-clip-text text-transparent">Reimagined.</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100/70 max-w-2xl font-light leading-relaxed">
+                Summarize threads, schedule meetings, and reply to a mail. All inside your inbox using AI.
+            </p>
+            <div className="mt-3 relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur opacity-20 group-hover:opacity-50 transition duration-500"></div>
+                <button onClick={handleAuthorize} className="relative flex items-center justify-center gap-4 px-10 py-4 rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-95 group-hover:shadow-2xl">
+                    <div className="absolute inset-0 bg-white/90 backdrop-blur-xl border border-white rounded-full"></div>
+                    <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/5"></div>
+                    <div className="relative z-10 flex items-center gap-3">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" className="w-6 h-6" />
+                        <span className="text-gray-800 font-bold text-lg tracking-wide">
+                            Continue with Google
+                        </span>
+                    </div>
+                </button>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+                <p className="text-white/30 text-xs font-medium uppercase tracking-[0.2em]">
+                    Powered by Gemini Flash 2.0, Gmail API & GCalendar API 
+                </p>
+            </div>
         </div>
 
-        <div className="flex items-center gap-6 text-white font-medium">
-          <a href="#" className="hover:text-blue-300 transition">Github Documentation</a>
-        </div>
       </div>
-
-      <div className="flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Get started with your AI-powered inbox
-        </h1>
-        <p className="text-gray-200 text-lg mb-8 max-w-lg">
-          Summarize, schedule, and reply — all inside your inbox.
-        </p>
-
-        <button onClick={handleAuthorize}
-          className="hover:cursor-pointer flex items-center justify-center gap-4 px-8 py-3 bg-white text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-100 transition duration-300">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" className="w-5 h-5" />
-          Continue with Google
-        </button>
-
-        <p className="text-gray-400 text-sm mt-6">
-          Powered by Gemini:Flash-2.0 & Gmail API
-        </p>
-      </div>
-
-      <div className="absolute bottom-[45%] left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-3xl -z-10"></div>
     </div>
   );
 }
+//2am
