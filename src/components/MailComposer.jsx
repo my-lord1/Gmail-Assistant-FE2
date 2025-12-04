@@ -48,8 +48,6 @@ export default function GmailCompose({
         payload.reply_to_message_id = replyToMessageId; 
       }
 
-      console.log("🚀 [MailComposer] Sending Payload:", payload);
-
       const response = await fetch("http://localhost:8000/emails/send", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,7 +60,6 @@ export default function GmailCompose({
       }
 
       const result = await response.json();
-      console.log("✅ [MailComposer] Success:", result);
       
       setMessage({ type: 'success', text: 'Email sent successfully!' });
       

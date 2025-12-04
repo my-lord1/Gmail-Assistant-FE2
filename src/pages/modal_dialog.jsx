@@ -46,6 +46,7 @@ export default function GmailAgent({ userId, onClose }) {
       }
     } catch (err) {
       setError('Failed to fetch emails');
+      throw err; 
     } finally {
       setLoading(false);
     }
@@ -126,8 +127,8 @@ export default function GmailAgent({ userId, onClose }) {
     }
     else if (decision === 'ignore') {
       resultType = 'ignored';
-      title = 'Skipped (Low Priority)';
-      message = 'The AI marked this as low priority/irrelevant and marked it as read.';
+      title = 'Skipped (Triage Decision: Ignore)';
+      message = 'The AI ignored this mail and marked it as read cause it might be related to promotional/spam.';
       icon = 'archive';
     }
     else if (decision === 'respond') {
@@ -139,7 +140,7 @@ export default function GmailAgent({ userId, onClose }) {
     else if (decision === 'notify') {
         resultType = 'success';
         title = 'Triage Handled';
-        message = 'You successfully handled the notification.';
+        message = 'You decided to ignore the email.';
         icon = 'check';
     }
 
@@ -247,53 +248,54 @@ export default function GmailAgent({ userId, onClose }) {
 
   return (
     <>
-      <div className={`w-[800px] h-[750px] max-w-[95vw] flex flex-col rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-300 ${glassPanel}`}>
-        <div className="relative z-20 flex justify-between items-center p-8 border-b border-white/10">
-          <div>
-            <h2 className="text-3xl font-bold text-white tracking-wide">Agent Unread</h2>
-            <p className="text-white/50 text-sm font-medium">
+      <div className={`w-[95%] sm:w-full max-w-2xl lg:max-w-[800px] h-[80vh] lg:h-[750px] flex flex-col rounded-2xl lg:rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-300 ${glassPanel}`}>
+        <div className="relative z-20 flex justify-between items-center p-4 sm:p-6 lg:p-8 border-b border-white/10">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-wide truncate">Agent Unread</h2>
+            <p className="text-white/50 text-xs sm:text-sm font-medium mt-1">
                {modalPhase === 'list' && 'Your intelligent inbox assistant'}
                {modalPhase === 'processing' && 'Processing active thread'}
                {modalPhase === 'result' && 'Action Report'}
             </p>
           </div>
-          <button onClick={handleCloseModal} className="p-3 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all duration-300 hover:rotate-90">
-            <X className="w-6 h-6" />
+          <button onClick={handleCloseModal} className="p-2 sm:p-3 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all duration-300 hover:rotate-90 shrink-0 ml-3">
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
           {modalPhase === 'list' && (
             <div className="animate-in slide-in-from-right-4 duration-300">
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 sm:justify-between sm:items-center mb-6 lg:mb-8">
                 <div className="flex p-1 bg-black/20 rounded-2xl w-fit border border-white/5">
                     {['all', 'today', 'week'].map((f) => (
-                    <button key={f} onClick={() => filterEmails(f)} className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${filter === f ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}>
+                    <button key={f} onClick={() => filterEmails(f)} className={`px-3 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${filter === f ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}>
                         {f.charAt(0).toUpperCase() + f.slice(1)}
                     </button>
                     ))}
                 </div>
-                <button onClick={handleSummarize} className="group flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 transition-all hover:scale-[1.02] active:scale-95">
-                    <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                    <span className="font-bold tracking-wide text-sm">Summarize Inbox</span>
+                <button onClick={handleSummarize} className="group flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-5 py-2 sm:py-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 transition-all hover:scale-[1.02] active:scale-95 whitespace-nowrap text-sm">
+                    <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+                    <span className="font-bold tracking-wide hidden sm:inline">Summarize Inbox</span>
+                    <span className="font-bold tracking-wide sm:hidden">Summarize</span>
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {loading ? (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                    <Loader className="w-10 h-10 animate-spin text-white mb-4" />
-                    <p className="text-white/70">Scanning inbox...</p>
+                  <div className="flex flex-col items-center justify-center py-16 sm:py-20 opacity-50">
+                    <Loader className="w-8 sm:w-10 h-8 sm:h-10 animate-spin text-white mb-4" />
+                    <p className="text-white/70 text-sm">Scanning inbox...</p>
                   </div>
                 ) : error ? (
-                  <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-6 flex items-center gap-4">
-                    <AlertCircle className="w-6 h-6 text-red-400" />
-                    <p className="text-red-200 font-medium">{error}</p>
+                  <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 sm:p-6 flex items-start gap-3 sm:gap-4">
+                    <AlertCircle className="w-5 sm:w-6 h-5 sm:h-6 text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-red-200 font-medium text-sm break-words">{error}</p>
                   </div>
                 ) : filteredEmails.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-white/30">
-                    <Mail className="w-16 h-16 mb-4 opacity-50" />
-                    <p className="text-xl font-light">All caught up</p>
+                  <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-white/30">
+                    <Mail className="w-12 sm:w-16 h-12 sm:h-16 mb-4 opacity-50" />
+                    <p className="text-lg sm:text-xl font-light">All caught up</p>
                   </div>
                 ) : (
                   filteredEmails.map((email) => (
@@ -306,23 +308,23 @@ export default function GmailAgent({ userId, onClose }) {
 
           {modalPhase === 'processing' && (
             <div className="animate-in slide-in-from-right-8 duration-500">
-              <button onClick={() => setModalPhase('list')} disabled={processingAction !== null} className="flex items-center gap-2 text-white/50 hover:text-white mb-6 text-sm font-bold uppercase tracking-wider transition-colors disabled:opacity-50">
-                <ArrowLeft className="w-4 h-4" /> Back to List
+              <button onClick={() => setModalPhase('list')} disabled={processingAction !== null} className="flex items-center gap-2 text-white/50 hover:text-white mb-6 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors disabled:opacity-50">
+                <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back to List</span><span className="sm:hidden">Back</span>
               </button>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 mb-8 flex items-start gap-4">
-                  <AlertCircle className="w-6 h-6 text-red-400 shrink-0" />
-                  <p className="text-red-200 font-medium">{error}</p>
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 flex items-start gap-3 sm:gap-4">
+                  <AlertCircle className="w-5 sm:w-6 h-5 sm:h-6 text-red-400 shrink-0 mt-0.5" />
+                  <p className="text-red-200 font-medium text-sm break-words">{error}</p>
                 </div>
               )}
               {!interrupt ? (
-                <div className="flex flex-col items-center justify-center py-24">
+                <div className="flex flex-col items-center justify-center py-20 sm:py-24">
                   <div className="relative">
                       <div className={`absolute inset-0 ${processingAction === 'summarize' ? 'bg-purple-500' : 'bg-blue-500'} blur-xl opacity-20 animate-pulse`}></div>
-                      <Loader className="w-16 h-16 animate-spin text-white relative z-10" />
+                      <Loader className="w-12 sm:w-16 h-12 sm:h-16 animate-spin text-white relative z-10" />
                   </div>
-                  <p className="text-white/80 mt-6 text-lg font-light animate-pulse">
+                  <p className="text-white/80 mt-4 sm:mt-6 text-sm sm:text-lg font-light animate-pulse text-center px-4">
                     {processingAction === 'summarize' ? 'Reading your emails & generating summary...' : 'Analyzing context & tools...'}
                   </p>
                 </div>

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react"; 
+import { useState, useEffect, useRef } from "react";
+import { LogOut, Menu, X as CloseIcon } from "lucide-react"; 
 import Aurora from "../components/Aurora";
 import GmailCompose from "../components/MailComposer";
 import GmailAgent from "./modal_dialog";
@@ -14,6 +14,8 @@ export default function DashBoard() {
   const [userInfo, setUserInfo] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
   const [showAgent, setShowAgent] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   const [locallyRead, setLocallyRead] = useState(() => {
     const saved = sessionStorage.getItem(`readThreads_${user_id}`);
@@ -61,6 +63,16 @@ export default function DashBoard() {
     fetchEmails();
   }, [user_id]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleThreadClick = async (threadId) => {
     setLocallyRead((prev) => {
       const newSet = new Set(prev);
@@ -104,66 +116,67 @@ export default function DashBoard() {
           speed={0.75}
         />
       </div>
-      <div className="relative z-10 w-full h-full flex flex-col p-6 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6 shrink-0">
-          <div className="flex gap-4">
-            <button onClick={() => setShowComposer(true)} className="relative group px-8 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95">
+      <div className="relative z-10 w-full h-full flex flex-col p-3 sm:p-6 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 shrink-0 flex-wrap gap-3 sm:gap-4">
+          <div className="flex gap-2 sm:gap-4 flex-wrap">
+            <button onClick={() => setShowComposer(true)} className="relative group px-4 sm:px-8 py-2 sm:py-3 font-semibold text-sm sm:text-base text-white transition-all duration-300 hover:scale-105 active:scale-95">
               <GlassLayer rounded="rounded-full" className="group-hover:bg-white/20 transition-colors" />
               <span className="relative z-20">Compose</span>
             </button>
 
-            <button onClick={() => setShowAgent(true)} className="relative group px-8 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95">
+            <button onClick={() => setShowAgent(true)} className="relative group px-4 sm:px-8 py-2 sm:py-3 font-semibold text-sm sm:text-base text-white transition-all duration-300 hover:scale-105 active:scale-95">
               <GlassLayer rounded="rounded-full" className="group-hover:bg-white/20 transition-colors" />
               <span className="relative z-20">Agent</span>
             </button>
           </div>
 
-          <div className="flex gap-4">
-            <div className="relative px-8 py-3 flex items-center justify-center">
+          <div className="flex gap-2 sm:gap-4 items-center">
+            <div className="hidden sm:flex relative px-4 sm:px-8 py-2 sm:py-3 items-center justify-center">
               <GlassLayer rounded="rounded-full" />
-              <span className="relative z-20 text-xl font-bold tracking-wide text-white/90">Inbox</span>
+              <span className="relative z-20 text-lg sm:text-xl font-bold tracking-wide text-white/90">Inbox</span>
             </div>
 
-            <div className="relative group z-50"> 
-              <div className="relative z-20 pl-2 pr-6 py-2 flex items-center gap-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 transition-all duration-300 group-hover:bg-black/40 group-hover:border-white/30 cursor-default">
+            <div className="relative z-50" ref={profileRef}> 
+              <div onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="relative z-20 pl-2 sm:pl-4 pr-4 sm:pr-6 py-2 flex items-center gap-2 sm:gap-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 transition-all duration-300 hover:bg-black/40 hover:border-white/30 cursor-pointer">
                 {userInfo?.profile_photo ? (
-                  <img src={userInfo.profile_photo} alt="Profile" className="w-10 h-10 rounded-full border-2 border-white/30 shadow-sm object-cover"/>
+                  <img src={userInfo.profile_photo} alt="Profile" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/30 shadow-sm object-cover"/>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-white/20 border-2 border-white/30" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 border-2 border-white/30" />
                 )}
+                
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white leading-tight">
+                  <span className="text-[10px] sm:text-sm font-bold text-white leading-tight">
                     {userInfo?.user_name || "User"}
                   </span>
-                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-wider">
+                  <span className="text-[9px] sm:text-[10px] text-white/60 font-medium uppercase tracking-wider">
                     {userInfo?.gmail_id ? "Connected" : `ID: ${user_id}`}
                   </span>
                 </div>
               </div>
 
-              <button
-                onClick={handleLogout}
-                className="absolute inset-0 -z-10 flex items-center justify-center gap-2 rounded-full 
-                           bg-red-600/20 border border-red-500/30 text-red-200 font-bold tracking-wide
-                           opacity-0 group-hover:opacity-100
-                           translate-y-0 group-hover:translate-y-[115%] 
-                           transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-xl backdrop-blur-md">
-                <LogOut className="w-4 h-4" />
+              <button onClick={handleLogout}
+                className={`absolute inset-0 -z-10 flex items-center justify-center gap-2 rounded-full 
+                           bg-red-600/20 border border-red-500/30 text-red-200 font-bold tracking-wide text-xs sm:text-sm
+                           transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-xl backdrop-blur-md
+                           ${isProfileOpen 
+                             ? "opacity-100 translate-y-[115%] pointer-events-auto" 
+                             : "opacity-0 translate-y-0 pointer-events-none"}`}>
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>Logout</span>
               </button>
-              <div className="absolute inset-0 -z-20 rounded-full bg-red-500 blur-xl opacity-20 group-hover:opacity-0 transition-opacity duration-300"></div>
             </div>
           </div>
         </div>
 
         <div className="relative flex-1 overflow-hidden">
-          <div className="relative z-20 h-full p-5 border border-white/20 rounded-3xl overflow-y-auto custom-scrollbar">
+          <div className="relative z-20 h-full p-3 sm:p-5 border border-white/20 rounded-2xl sm:rounded-3xl overflow-y-auto custom-scrollbar">
             {loading ? (
               <div className="flex h-full items-center justify-center text-white/50 animate-pulse">
                 Loading your inbox...
               </div>
             ) : (
-              <div className="space-y-3 pb-20">
+              <div className="space-y-2 sm:space-y-3 pb-20">
                 {threads.length === 0 && (
                   <p className="text-white/50 text-center mt-10">No emails found</p>
                 )}
@@ -176,16 +189,16 @@ export default function DashBoard() {
                   const isActuallyUnread = latestMsg.is_unread && !locallyRead.has(thread.threadId);
 
                   return (
-                    <div key={thread.threadId} onClick={() => handleThreadClick(thread.threadId)} className="relative group p-5 cursor-pointer transition-all duration-300 hover:scale-[1.01]">
-                      <GlassLayer rounded="rounded-2xl" opacity={isActuallyUnread ? "bg-white/20" : "bg-white/5"} className="group-hover:bg-white/20 transition-colors duration-300"/>
-                      <div className="relative z-10 flex flex-row justify-between items-center">
-                        <span className={`w-1/3 text-left truncate pr-4 ${isActuallyUnread ? "font-bold text-white/95" : "font-medium text-white/70"}`}>
+                    <div key={thread.threadId} onClick={() => handleThreadClick(thread.threadId)} className="relative group p-3 sm:p-5 cursor-pointer transition-all duration-300 hover:scale-[1.01]">
+                      <GlassLayer rounded="rounded-xl sm:rounded-2xl" opacity={isActuallyUnread ? "bg-white/20" : "bg-white/5"} className="group-hover:bg-white/20 transition-colors duration-300"/>
+                      <div className="relative z-10 flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center">
+                        <span className={`text-xs sm:text-base truncate ${isActuallyUnread ? "font-bold text-white/95" : "font-medium text-white/70"}`}>
                           {from}
                         </span>
-                        <span className={`w-1/2 text-left truncate ${isActuallyUnread ? "font-bold text-white/95" : "text-white/60"}`}>
+                        <span className={`text-xs sm:text-base truncate sm:w-1/2 ${isActuallyUnread ? "font-bold text-white/95" : "text-white/60"}`}>
                           {subject}
                         </span>
-                        <span className={`w-1/6 text-right text-xs ${isActuallyUnread ? "font-bold text-white/95" : "text-white/40"}`}>
+                        <span className={`text-xs ${isActuallyUnread ? "font-bold text-white/95" : "text-white/40"}`}>
                           {sentTime}
                         </span>
                       </div>
@@ -199,13 +212,13 @@ export default function DashBoard() {
       </div>
 
       {showAgent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
             <GmailAgent userId={user_id} onClose={() => setShowAgent(false)} onLogout={handleLogout} />
         </div>
       )}
 
       {showComposer && (
-        <div className="fixed bottom-10 right-10 z-50 drop-shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
+        <div className="fixed bottom-5 right-5 sm:bottom-10 sm:right-10 z-50 drop-shadow-2xl animate-in slide-in-from-bottom-10 duration-300 max-w-[calc(100vw-40px)]">
           <GmailCompose userId={user_id} onClose={() => setShowComposer(false)} />
         </div>
       )}
