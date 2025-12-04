@@ -48,7 +48,7 @@ export default function GmailCompose({
         payload.reply_to_message_id = replyToMessageId; 
       }
 
-      const response = await fetch("http://localhost:8000/emails/send", {
+      const response = await fetch("https://gmail-assistant-be.onrender.com/emails/send", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

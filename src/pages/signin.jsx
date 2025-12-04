@@ -5,7 +5,7 @@ import Aurora from "../components/Aurora";
 export default function SignIn() {
   const handleAuthorize = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/auth/google/start");
+      const res = await axios.get("https://gmail-assistant-be.onrender.com/auth/google/start");
       window.location.href = res.data.authorization_url;
     } catch (err) {
       console.error("Google Login Failed:", err);

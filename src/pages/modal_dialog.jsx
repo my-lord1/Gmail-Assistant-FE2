@@ -34,7 +34,7 @@ export default function GmailAgent({ userId, onClose }) {
     setError(null);
     try {
       const response = await fetch(
-        `http://localhost:8000/api/agent/get-unread-emails?user_id=${userId}&order=newest`
+        `https://gmail-assistant-be.onrender.com/api/agent/get-unread-emails?user_id=${userId}&order=newest`
       );
       const data = await response.json();
       if (data.status === 'success') {
@@ -58,7 +58,7 @@ export default function GmailAgent({ userId, onClose }) {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/agent/summarize', {
+      const response = await fetch('https://gmail-assistant-be.onrender.com/api/agent/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId }),
@@ -167,7 +167,7 @@ export default function GmailAgent({ userId, onClose }) {
     setProcessingAction(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/agent/process-email', {
+      const response = await fetch('https://gmail-assistant-be.onrender.com/api/agent/process-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId, email_id: emailId, order: 'newest' }),
@@ -205,7 +205,7 @@ export default function GmailAgent({ userId, onClose }) {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/agent/resume', {
+      const response = await fetch('https://gmail-assistant-be.onrender.com/api/agent/resume', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ thread_id: threadId, user_response: userResponse }),

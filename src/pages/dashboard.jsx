@@ -48,7 +48,7 @@ export default function DashBoard() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8000/emails/full-threaded/${user_id}`
+          `https://gmail-assistant-be.onrender.com/emails/full-threaded/${user_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch emails");
         const data = await response.json();
@@ -81,7 +81,7 @@ export default function DashBoard() {
       return newSet;
     });
 
-    fetch(`http://localhost:8000/api/agent/mark-read/${user_id}/${threadId}`, {
+    fetch(`https://gmail-assistant-be.onrender.com/api/agent/mark-read/${user_id}/${threadId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     }).catch((err) => console.error("Failed to mark read on server:", err));
@@ -91,7 +91,7 @@ export default function DashBoard() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:8000/auth/google/logout', {
+      await fetch('https://gmail-assistant-be.onrender.com/auth/google/logout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id }),

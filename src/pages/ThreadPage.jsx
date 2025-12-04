@@ -23,7 +23,7 @@ export default function ThreadPage() {
     const fetchThread = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8000/emails/full-threaded/${user_id}`);
+        const response = await fetch(`https://gmail-assistant-be.onrender.com/emails/full-threaded/${user_id}`);
         if (!response.ok) throw new Error("Failed to fetch thread");
         const data = await response.json();
         const foundThread = data.threads.find((t) => t.threadId === threadId);
